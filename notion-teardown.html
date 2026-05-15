@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Notion AI — A Product Teardown by Janhvi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF7;
+    --surface: #FFFFFF;
+    --surface-soft: #F5F4EF;
+    --ink: #1A1A1A;
+    --ink-soft: #4A4A48;
+    --ink-muted: #8A8A85;
+    --border: #E8E7E1;
+    --border-strong: #D8D7D0;
+    --accent: #1E40AF;
+    --accent-soft: #EFF3FB;
+    --amber: #92400E;
+    --amber-soft: #FEF6E4;
+    --teal: #0E6F5C;
+    --teal-soft: #E7F3F0;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --serif: 'Newsreader', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============ TOP NAV ============ */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250, 250, 247, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+  }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nav-brand {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .nav-brand span { color: var(--ink-muted); font-weight: 400; }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a {
+    font-size: 14px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+
+  /* ============ HERO ============ */
+  .hero {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 5rem 2rem 3rem;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+  }
+  .hero-title {
+    font-family: var(--serif);
+    font-size: 52px;
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+  }
+  .hero-subtitle {
+    font-size: 19px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    margin-bottom: 2.5rem;
+    max-width: 680px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--ink-muted);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .hero-meta-item { display: flex; align-items: center; gap: 6px; }
+
+  /* ============ TLDR CARD ============ */
+  .tldr {
+    max-width: 820px;
+    margin: 0 auto 4rem;
+    padding: 0 2rem;
+  }
+  .tldr-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  }
+  .tldr-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.85rem;
+  }
+  .tldr-text {
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+
+  /* ============ BODY LAYOUT ============ */
+  .body-wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+  .section {
+    margin-bottom: 4.5rem;
+  }
+  .section-num {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.5rem;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin-bottom: 1.75rem;
+  }
+  .body-text {
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+  }
+  .body-text:last-child { margin-bottom: 0; }
+
+  /* ============ PULL QUOTE ============ */
+  .pullquote {
+    border-left: 3px solid var(--accent);
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    margin: 2rem 0;
+  }
+  .pullquote p {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--ink);
+    font-weight: 400;
+  }
+
+  /* ============ DECISION BEAT CARDS ============ */
+  .beat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.25rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .beat:hover {
+    border-color: var(--border-strong);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  }
+  .beat-num {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .beat-title {
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.85rem;
+    line-height: 1.35;
+  }
+  .beat-body {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    margin-bottom: 1rem;
+  }
+  .beat-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 6px;
+  }
+  .tag-blue { background: var(--accent-soft); color: var(--accent); }
+  .tag-amber { background: var(--amber-soft); color: var(--amber); }
+  .tag-teal { background: var(--teal-soft); color: var(--teal); }
+
+  /* ============ TENSION BLOCKS ============ */
+  .tension {
+    padding: 1.5rem 0 1.5rem 1.5rem;
+    border-left: 2px solid var(--border-strong);
+    margin-bottom: 1.5rem;
+  }
+  .tension-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--amber);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .tension-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.65rem;
+  }
+  .tension-body {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+  }
+
+  /* ============ BET CARDS ============ */
+  .bet {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .bet-num {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.4rem;
+  }
+  .bet-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+    line-height: 1.35;
+  }
+  .bet-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 1rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .bet-row:last-of-type { border-bottom: none; }
+  .bet-row-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-top: 2px;
+  }
+  .bet-row-value {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  .tradeoff-callout {
+    margin-top: 1rem;
+    padding: 0.9rem 1.1rem;
+    background: var(--amber-soft);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--amber);
+    line-height: 1.55;
+  }
+  .tradeoff-callout strong { font-weight: 600; }
+
+  /* ============ DIVIDER ============ */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 5rem 0;
+  }
+
+  /* ============ METHOD BLOCK ============ */
+  .method {
+    background: var(--surface-soft);
+    border-radius: 12px;
+    padding: 1.75rem 2rem;
+    margin-top: 3rem;
+  }
+  .method-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.75rem;
+  }
+  .method-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+  }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+  .footer-text {
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 640px) {
+    .hero { padding: 3rem 1.25rem 2rem; }
+    .hero-title { font-size: 36px; }
+    .hero-subtitle { font-size: 17px; }
+    .body-wrap { padding: 0 1.25rem 4rem; }
+    .section-title { font-size: 26px; }
+    .body-text { font-size: 16px; }
+    .nav { padding: 0.85rem 1.25rem; }
+    .nav-links { gap: 1.25rem; }
+    .beat, .bet { padding: 1.5rem 1.25rem; }
+    .bet-row { grid-template-columns: 1fr; gap: 0.25rem; }
+    .pullquote p { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAVIGATION ============ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-brand">Janhvi <span>· portfolio</span></a>
+    <div class="nav-links">
+      <a href="#">Work</a>
+      <a href="#">Teardowns</a>
+      <a href="#">About</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <span class="hero-tag">Product Teardown</span>
+  <h1 class="hero-title">Notion AI: the most honest assistant in productivity software</h1>
+  <p class="hero-subtitle">A product teardown of what Notion is — and isn't — trying to do with AI, why that restraint is interesting, and where the seams of the strategy show up in the product.</p>
+  <div class="hero-meta">
+    <span class="hero-meta-item">📅 May 2026</span>
+    <span class="hero-meta-item">⏱ ~12 min read</span>
+    <span class="hero-meta-item">✍️ By Janhvi</span>
+  </div>
+</section>
+
+<!-- ============ TLDR ============ -->
+<section class="tldr">
+  <div class="tldr-card">
+    <div class="tldr-label">TL;DR</div>
+    <p class="tldr-text">Notion AI is quietly one of the most interesting AI products to study — because of what it deliberately doesn't try to be. It isn't trying to know you. It isn't trying to act on your behalf. It waits until you call it, and when you do, the quality of its output is almost entirely a function of how organized your workspace already is. That's a fascinating design choice — it makes Notion AI genuinely useful for structured workflows, and quietly inadequate for the messy, exploratory thinking Notion was originally built to support. The most interesting strategic question is whether they can build AI that works <em>with</em> disorder, not just on top of order.</p>
+  </div>
+</section>
+
+<!-- ============ BODY ============ -->
+<main class="body-wrap">
+
+  <!-- SECTION 01 -->
+  <section class="section">
+    <div class="section-num">01 — Context</div>
+    <h2 class="section-title">Why Notion, why now</h2>
+    <p class="body-text">I've been using Notion as my second brain for a while, and over the last year I've been paying close attention to how AI shows up inside it. It's an interesting moment to look at Notion specifically. The product has 100M+ users sitting on years of accumulated context — notes, databases, project pages, half-finished drafts. Meanwhile, a new generation of AI-native tools (Mem, Reflect, NotebookLM, Claude with Projects) is explicitly targeting the same "second brain" use case Notion has owned for years.</p>
+    <p class="body-text">So Notion is in a position most incumbents will find themselves in soon — they have the users, they have the data, and now they have to figure out what AI does inside a product that wasn't originally designed around AI. The choices they're making are worth studying, because they tell you a lot about what's actually hard about retrofitting AI into mature productivity tools.</p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- SECTION 02 -->
+  <section class="section">
+    <div class="section-num">02 — Strategy</div>
+    <h2 class="section-title">The core bet</h2>
+    <p class="body-text">Notion's bet, as I read it, is that AI should live <em>inside the workspace</em>, not as a separate thing you talk to. Every AI feature they've shipped is inline — slash commands, highlighted text actions, AI properties inside databases, Q&amp;A that lives in the corner of the same page you're working in. There's no Notion AI chat window. There's no Notion agent that goes off and does things. It's all reactive, invocation-based, and tied to the place where your knowledge already lives.</p>
+
+    <div class="pullquote">
+      <p>"The bet is essentially: if AI works inside the workspace where your context already lives, we win — because moving context is friction."</p>
+    </div>
+
+    <p class="body-text">This is a real bet, not just a UX preference. It assumes that the <em>workspace</em> is the right primitive — not the chat interface, not the agent, not the standalone document. It assumes that AI's value is highest when it's close to the work, and lowest when it's a separate destination you have to switch into.</p>
+    <p class="body-text">What they're explicitly <em>not</em> betting on is just as telling. Notion isn't building proactive AI that learns your patterns. It isn't building ambient suggestions. It isn't building an agent that restructures your information architecture or surfaces forgotten notes while you write. Those are all things competitors are racing toward. Notion is sitting them out — at least for now.</p>
+    <p class="body-text">The interesting part is that this restraint is partly philosophy and partly necessity. The deeper I look, the more I think Notion's data model — pages, blocks, databases, all loosely connected — actually makes some of the more ambitious AI patterns genuinely hard to ship well. So the conservative posture isn't just a strategic choice. It's also what the product architecture allows them to do confidently right now.</p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- SECTION 03 -->
+  <section class="section">
+    <div class="section-num">03 — Product decisions</div>
+    <h2 class="section-title">How the product expresses the bet</h2>
+    <p class="body-text" style="margin-bottom: 2rem;">I want to walk through five specific decisions that, taken together, show what Notion is really betting on. For each one, I'll point out what they did, what they could have done instead, and what I think it tells us.</p>
+
+    <div class="beat">
+      <div class="beat-num">Decision 01</div>
+      <h3 class="beat-title">The slash command as the AI entry point</h3>
+      <p class="beat-body">The primary way you invoke AI inside Notion is by typing <code>/AI</code> inside a page. That's it. It sits in the same command palette as formatting options, embeds, headings, and database blocks.</p>
+      <p class="beat-body">That's a small thing, but it's a deliberate choice. Notion is saying: AI is <em>one tool among many</em>, not the centerpiece of the product. Compare this to Microsoft Copilot, which has its own persistent panel inside Word, or to Claude and ChatGPT, which are entire interfaces. Notion is putting AI inside the same drawer as the divider block. It's a feature, not a personality.</p>
+      <p class="beat-body">I think this is right for Notion's user base — people come to Notion to organize their thinking, not to interact with an assistant. But it has a downside: discoverability is low. If you don't already know AI is there, you won't stumble into it.</p>
+      <span class="beat-tag tag-blue">Strategic signal · AI as feature, not personality</span>
+    </div>
+
+    <div class="beat">
+      <div class="beat-num">Decision 02</div>
+      <h3 class="beat-title">Ask AI works best when your workspace is already organized</h3>
+      <p class="beat-body">This is the most interesting beat for me, because it's where I actually used the product and noticed the seam.</p>
+      <p class="beat-body">When I asked AI questions about content sitting in structured spaces — meeting notes with consistent headings, well-tagged databases, project pages with clear properties — Ask AI worked surprisingly well. It pulled the right pages, summarized accurately, even handled multi-page queries decently.</p>
+      <p class="beat-body">But the moment I asked it questions about messy stuff — freeform brainstorm pages, half-organized notes from a few months ago, scattered thoughts I never bothered to structure — it broke down. Generic answers. Missed the nuance. Sometimes pulled the wrong page entirely.</p>
+      <p class="beat-body">What this told me is that Ask AI is essentially a sophisticated retrieval-and-summarization layer. The intelligence isn't really <em>in the AI</em> — a lot of it is in the structure you've already built. The AI is borrowing from your organizational discipline. When that discipline is there, it shines. When it isn't, the AI exposes it.</p>
+      <p class="beat-body">This isn't a flaw exactly. It's an architecture-level reality. But it has a consequence Notion doesn't talk about: Notion AI quietly rewards power users who already organize their workspaces well, and quietly underperforms for the chaotic majority — which is most users on most days.</p>
+      <span class="beat-tag tag-amber">Strategic signal · Intelligence is borrowed from user structure</span>
+    </div>
+
+    <div class="beat">
+      <div class="beat-num">Decision 03</div>
+      <h3 class="beat-title">The inline writing assistant is the strongest feature</h3>
+      <p class="beat-body">The inline writing assistant — the one that pops up when you select text and offers to improve, summarize, fix, or change the tone — is the best AI feature in Notion, and I think it's because of where it appears.</p>
+      <p class="beat-body">It shows up <em>inside the act of writing</em>. You don't have to context-switch. You don't have to open a panel. You don't have to copy-paste. It's just there, on the text you're already working on, and the output lands in place.</p>
+      <p class="beat-body">The other thing I noticed is the <em>verbs</em> it offers. Improve, fix, summarize, change tone, make shorter. These are editing verbs, not thinking verbs. Notion isn't trying to think for you. It's trying to remove the mechanical part of getting your thoughts onto the page cleanly.</p>
+      <p class="beat-body">I think this is the right level of ambition. The friction of writing-as-expression is real and worth removing. The work of writing-as-thinking is something users don't actually want AI to do, even when they say they do. Notion has read this correctly.</p>
+      <span class="beat-tag tag-teal">Strategic signal · Editing verbs, not thinking verbs</span>
+    </div>
+
+    <div class="beat">
+      <div class="beat-num">Decision 04</div>
+      <h3 class="beat-title">AI inside databases is the most underrated feature</h3>
+      <p class="beat-body">If you ask me what Notion's most structurally differentiated AI feature is, I'd say it's the AI properties inside databases. You can set a column to auto-summarize a page, auto-tag content, or extract structured fields from freeform text — and it just works, quietly, in the background.</p>
+      <p class="beat-body">This is interesting because it's the one place where Notion's AI is operating on the <em>information architecture</em>, not just on prose. It's AI working on your structured data. And it hints at where Notion could go — a database-native AI that makes your structured content smarter over time, automatically.</p>
+      <p class="beat-body">The reason it's underrated is that nobody knows it exists. There's no onboarding moment, no discovery surface, nothing that walks new database users through what AI properties can do. So one of Notion's most distinctive features is invisible to most of the people who'd benefit from it.</p>
+      <span class="beat-tag tag-blue">Strategic signal · Most differentiated, least discoverable</span>
+    </div>
+
+    <div class="beat">
+      <div class="beat-num">Decision 05</div>
+      <h3 class="beat-title">What Notion deliberately didn't build</h3>
+      <p class="beat-body">This one matters as much as the features that exist. There's no proactive AI in Notion. No suggestions that surface while you're typing. No "you wrote about this 6 months ago, want to pull it in?" No agent that flags stale projects or surfaces forgotten notes. No ambient layer.</p>
+      <p class="beat-body">For a product that holds your second brain, these feel like obvious features. So the absence is telling.</p>
+      <p class="beat-body">I think Notion is protecting something: the feeling that this is <em>your</em> workspace, not an AI's interpretation of it. The moment AI starts suggesting things on its own, the workspace stops feeling like yours. It starts feeling like a co-managed space, and that changes the emotional relationship users have with the product. I think Notion understands this, and is being careful with it.</p>
+      <p class="beat-body">But "careful" is also a strategic risk. AI-native tools are explicitly building the opposite. And users are starting to expect ambient intelligence in the products they use every day.</p>
+      <span class="beat-tag tag-amber">Strategic signal · Restraint as identity protection</span>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- SECTION 04 -->
+  <section class="section">
+    <div class="section-num">04 — Where strategy meets reality</div>
+    <h2 class="section-title">Where the seams show</h2>
+    <p class="body-text" style="margin-bottom: 2rem;">Three tensions I notice in the product:</p>
+
+    <div class="tension">
+      <div class="tension-label">Tension 01</div>
+      <h3 class="tension-title">Structure-dependence is a hidden onboarding tax</h3>
+      <p class="tension-body">Notion AI's quality scales with how well you've organized your workspace. But most users start chaotic — they dump notes, they don't tag things, they build half-finished databases. So AI works best for the 20% of users who've built mature workspaces, and quietly underwhelms the 80% in productive chaos. Nobody tells you this when you start using it. It just feels like the AI is fine for some queries and weirdly bad for others, and you can't tell why.</p>
+    </div>
+
+    <div class="tension">
+      <div class="tension-label">Tension 02</div>
+      <h3 class="tension-title">The magic moments are contextual, but discoverability is poor</h3>
+      <p class="tension-body">The best AI interactions in Notion are the ones you stumble into — selecting text and seeing options appear, typing <code>/AI</code> mid-thought, noticing an AI property on a database. The least good ones are when you intentionally "go use AI," which feels like opening another tool. This creates a bimodal experience: power users who unlock the depth, and light users who think Notion AI is basically just a grammar checker. There's no onboarding moment that surfaces the full shape of what's possible. Which means a lot of the product's value is locked behind exploration.</p>
+    </div>
+
+    <div class="tension">
+      <div class="tension-label">Tension 03</div>
+      <h3 class="tension-title">Connectors are the bet that requires a network effect Notion doesn't have</h3>
+      <p class="tension-body">The connector strategy (Slack, Drive, email integrations) is the most ambitious part of Notion's AI play — if all your context lives in Notion, the AI compounds. But for personal users like me, connectors are basically irrelevant. For teams, adoption is an IT and political problem, not just a product one. So the most strategically important AI bet Notion is making is also the one with the hardest unlock conditions.</p>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- SECTION 05 -->
+  <section class="section">
+    <div class="section-num">05 — PM perspective</div>
+    <h2 class="section-title">What I'd do if I were on this team</h2>
+    <p class="body-text" style="margin-bottom: 2rem;">Three things I'd push for in the next two quarters, framed the way a PM should — problem, why now, what to ship, how to measure, what we'd give up.</p>
+
+    <div class="bet">
+      <div class="bet-num">Bet 01</div>
+      <h3 class="bet-title">Workspace health signal, surfaced contextually</h3>
+      <div class="bet-row"><span class="bet-row-label">Problem</span><span class="bet-row-value">AI quality is silently dependent on workspace structure, but users have no idea. They just experience the AI as inconsistent.</span></div>
+      <div class="bet-row"><span class="bet-row-label">Why now</span><span class="bet-row-value">As AI becomes a retention lever, Notion can't afford to have most users experiencing AI at half its potential. Making the dependency visible is the cheapest fix.</span></div>
+      <div class="bet-row"><span class="bet-row-label">Ship</span><span class="bet-row-value">A lightweight signal — not a grade, not a score — that surfaces when a user is in a part of their workspace where AI will work well, and when they're somewhere it'll struggle. Something like: <em>"Your meeting notes are well-structured — Ask AI works great here. This brainstorm is harder for AI to parse."</em> Not paternalistic, just informative.</span></div>
+      <div class="bet-row"><span class="bet-row-label">Measure</span><span class="bet-row-value">Ask AI thumbs-up rate among users who see the signal vs. control. Long-term: workspace structure improvements over time.</span></div>
+      <div class="tradeoff-callout"><strong>Tradeoff:</strong> Risks feeling judgy. The copy has to be carefully worded so it doesn't read like the AI is grading your notes.</div>
+    </div>
+
+    <div class="bet">
+      <div class="bet-num">Bet 02</div>
+      <h3 class="bet-title">Ambient page surfacing while writing</h3>
+      <div class="bet-row"><span class="bet-row-label">Problem</span><span class="bet-row-value">One of the most natural AI moments — "you wrote about this before, here's the page" — doesn't exist in Notion. And it's exactly the moment Notion is best positioned to own because of how much context they hold.</span></div>
+      <div class="bet-row"><span class="bet-row-label">Why now</span><span class="bet-row-value">Competitors are doing this now. Mem, Reflect, and even Claude with Projects are explicitly building proactive surfacing. Notion has more user context than any of them and is leaving it on the table.</span></div>
+      <div class="bet-row"><span class="bet-row-label">Ship</span><span class="bet-row-value">A non-intrusive sidebar suggestion that says "you wrote about this in [page] — want to pull it in?" Triggered by semantic similarity, dismissable easily, off by default.</span></div>
+      <div class="bet-row"><span class="bet-row-label">Measure</span><span class="bet-row-value">% of writing sessions where a suggested page is opened. Pages-per-session as a secondary signal.</span></div>
+      <div class="tradeoff-callout"><strong>Tradeoff:</strong> This is the most philosophically risky bet. It moves Notion from invocation-based AI to proactive AI, which is a real shift. If the UX isn't carefully designed, it could feel like surveillance on your own notes.</div>
+    </div>
+
+    <div class="bet">
+      <div class="bet-num">Bet 03</div>
+      <h3 class="bet-title">Make AI database properties a first-class onboarding moment</h3>
+      <div class="bet-row"><span class="bet-row-label">Problem</span><span class="bet-row-value">The most structurally differentiated AI feature in Notion is invisible to most users. Almost nobody knows AI database properties exist.</span></div>
+      <div class="bet-row"><span class="bet-row-label">Why now</span><span class="bet-row-value">Database usage is highest among team workspaces, which is where Notion's revenue is concentrated. Driving adoption of an existing feature is usually cheaper than building a new one.</span></div>
+      <div class="bet-row"><span class="bet-row-label">Ship</span><span class="bet-row-value">A template-based onboarding flow when users create a new database. <em>"Want AI to auto-summarize new pages added to this database? One click."</em> Make the magic visible on first use.</span></div>
+      <div class="bet-row"><span class="bet-row-label">Measure</span><span class="bet-row-value">Adoption rate of AI properties among new database creators. The current baseline is probably tiny — any lift is meaningful.</span></div>
+      <div class="tradeoff-callout"><strong>Tradeoff:</strong> Investing in discoverability for an existing feature means not shipping something new. But adoption of existing depth almost always beats new surface area.</div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- SECTION 06 -->
+  <section class="section">
+    <div class="section-num">06 — Zooming out</div>
+    <h2 class="section-title">What this tells me about AI in productivity software</h2>
+    <p class="body-text">Two patterns I think Notion is making visible, and that will play out across every productivity tool over the next few years.</p>
+    <p class="body-text"><strong>The first is the structure paradox.</strong> AI in productivity software is quietly regressive. It rewards users who already have good organizational habits, and exposes the ones who don't. So tools that solve this — either by helping users build structure, or by being genuinely tolerant of disorder — will win the broad market. Tools that quietly require structure will win the power user segment and plateau. Notion is currently in the second category. The question is whether they can move into the first one.</p>
+    <p class="body-text"><strong>The second is the incumbent's dilemma.</strong> Notion is the clearest case study of what happens when a mature productivity tool tries to add AI. They can't rebuild their data model. They can't change user behavior overnight. So they layer AI on top of what already exists — and you can see the seams where the old architecture and the new capability don't quite fit. This is the structural challenge for every Microsoft, Google, Atlassian, and Notion trying to do AI. The AI-native tools don't have this problem — they get to design the data model for AI from day one. Whether incumbents can close this gap through product iteration, or whether the natives win, is one of the most interesting product questions of the next three years.</p>
+    <p class="body-text">I think Notion has read its user base correctly, even if it means moving slower than the market expects. The conservative posture is genuinely earned — workspace-native AI is harder than chat-window AI, and getting it wrong would damage the trust users have in the product. But the longer Notion stays conservative, the more they'll need to bet on the connector strategy paying off — because that's the only way the structural disadvantage closes. Without it, they're an excellent productivity tool with a thoughtful AI layer, while competitors get to be AI-native from day one.</p>
+  </section>
+
+  <!-- METHOD -->
+  <div class="method">
+    <div class="method-label">Method + Sources</div>
+    <p class="method-text">Used Notion as my second brain over the last several months — personal notes, project tracking, occasional team docs. Tested Ask AI, the inline writing assistant, AI database properties, and the Slack/Drive connectors. Reviewed Notion's AI feature changelog from 2023 onward and Ivan Zhao interviews on product philosophy. Referenced competitor products including Mem, Reflect, NotebookLM, and Claude Projects. All strategic interpretations are my own read of observed product behavior — no inside information on Notion's roadmap.</p>
+  </div>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <p class="footer-text">© 2026 Janhvi · Building AI systems that solve real-world problems</p>
+</footer>
+
+</body>
+</html>
